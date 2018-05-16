@@ -11,7 +11,10 @@ ENV APACHE_SPARK_VERSION 2.3.0
 ENV HADOOP_VERSION 2.7
 
 RUN apt-get -y update && \
-    apt-get install --no-install-recommends -y openjdk-8-jre-headless ca-certificates-java && \
+    apt-get install --no-install-recommends -y \
+    openjdk-8-jre-headless \
+    ca-certificates-java \
+    postgresql-client && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -43,5 +46,12 @@ USER $NB_UID
 
 # Install pyarrow
 RUN conda install --quiet -y 'pyarrow' && \
+    fix-permissions $CONDA_DIR && \
+    fix-permissions /home/$NB_USER
+    
+# Install psycopg2  
+RUN pip install --no-cache-dir \
+    psycopg2 && \
+    rm -rf /home/$NB_USER/.local && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
